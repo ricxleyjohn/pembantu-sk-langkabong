@@ -5,7 +5,7 @@ service cloud.firestore {
     // Tukar senarai e-mel admin (huruf kecil). Mesti sama dengan config.js.
     function isAdmin() {
       return request.auth != null &&
-        request.auth.token.email.lower() in ['admin@contoh.com'];
+        request.auth.token.email.lower() in ['ricxleyjohn@gmail.com'];
     }
     function signedIn() { return request.auth != null; }
     function isStaff() {
