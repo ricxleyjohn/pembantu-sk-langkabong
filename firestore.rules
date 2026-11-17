@@ -1,0 +1,64 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Tukar senarai e-mel admin (huruf kecil). Mesti sama dengan config.js.
+    function isAdmin() {
+      return request.auth != null &&
+        request.auth.token.email.lower() in ['admin@contoh.com'];
+    }
+    function signedIn() { return request.auth != null; }
+    function isStaff() {
+      return signedIn() &&
+        exists(/databases/$(database)/documents/staf/$(request.auth.uid));
+    }
+
+    // Data peribadi setiap pengguna (cth. PIN): hanya tuan punya
+    match /data/users/{uid}/{document=**} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Tetapan (nama admin, nombor WhatsApp, kehadiran)
+    match /tetapan/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Direktori staf: dibaca semua yang log masuk, diurus admin
+    match /staf/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // Permohonan akses: pemohon tulis miliknya, admin urus
+    match /permohonan/{uid} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      allow create, update: if signedIn() && request.auth.uid == uid;
+      allow delete: if isAdmin();
+    }
+
+    // Kelas dan murid: hanya staf yang diluluskan dan admin
+    match /kelas/{document=**} {
+      allow read: if isAdmin() || isStaff();
+      allow write: if isAdmin() || isStaff();
+    }
+
+    // Kehadiran guru
+    match /hadir/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin() || isStaff();
+    }
+
+    // Arkib dokumen dan nota
+    match /lampiran/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin() || isStaff();
+    }
+    match /nota/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin() || isStaff();
+    }
+
+    match /{document=**} { allow read, write: if false; }
+  }
+}
