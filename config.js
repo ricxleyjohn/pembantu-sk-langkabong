@@ -16,7 +16,7 @@ window.SKLB_CONFIG = {
   admins: ["ricxleyjohn@gmail.com"],
 
   /* 3) Muat naik fail dalam Arkib dokumen memerlukan Firebase Storage (pelan Blaze). Biar false jika tidak guna. */
-  useStorage: false,
+  useStorage: true,
   storageMaxBytes: 1000000000,
 
   /* 4) Pembantu AI (butang "Tanya"). Kosongkan jika tidak guna. Isi URL Cloudflare Worker dari folder ai-proxy/. */
